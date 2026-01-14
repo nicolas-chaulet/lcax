@@ -18,9 +18,6 @@ use lcax_models::project::Project;
 use lcax_validation;
 use lcax_validation::model::{ValidationResult, ValidationSchema};
 
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 #[wasm_bindgen]
 extern "C" {
     fn alert(s: &str);
@@ -85,6 +82,49 @@ pub fn calculateProject(mut project: Project) -> Result<Project, JsError> {
         Ok(project) => Ok(project.clone()),
         Err(error) => Err(JsError::new(error.to_string().as_str())),
     }
+}
+
+///Calculate the impact results for a Project from JSON string.
+///This alternative implementation parses JSON in Rust to avoid externref overhead.
+#[allow(non_snake_case)]
+#[wasm_bindgen]
+pub fn calculateProjectFromJson(project_json: &str) -> Result<String, JsError> {
+    console_error_panic_hook::set_once();
+
+    // Parse JSON string to Project
+    let mut project: Project = match serde_json::from_str(project_json) {
+        Ok(p) => p,
+        Err(e) => return Err(JsError::new(&format!("JSON parse error: {}", e))),
+    };
+
+    // Calculate
+    match calculate_project(&mut project, None) {
+        Ok(result) => match serde_json::to_string(result) {
+            Ok(json) => Ok(json),
+            Err(e) => Err(JsError::new(&format!("JSON serialize error: {}", e))),
+        },
+        Err(error) => Err(JsError::new(&error)),
+    }
+}
+
+///Calculate the impact results for a Project from JSON string.
+///This alternative implementation parses JSON in Rust to avoid externref overhead.
+#[allow(non_snake_case)]
+#[wasm_bindgen]
+pub fn projectSerde(project_json: &str) -> Result<String, JsError> {
+    console_error_panic_hook::set_once();
+
+    // Parse JSON string to Project
+    let project: Project = match serde_json::from_str(project_json) {
+        Ok(p) => p,
+        Err(e) => return Err(JsError::new(&format!("JSON parse error: {}", e))),
+    };
+
+    // Calculate
+    return match serde_json::to_string(&project) {
+        Ok(json) => Ok(json),
+        Err(e) => Err(JsError::new(&format!("JSON serialize error: {}", e))),
+    };
 }
 
 ///Calculate the impact results for an Assembly.

@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { calculateProject } from "../../src/lcax";
+import { calculateProject } from "../../src/lcax.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,7 +69,11 @@ async function benchmarkProject(
         const time = end - start;
         times.push(time);
         
-        process.stdout.write(`  Iteration ${i + 1}/${iterations}: ${time.toFixed(2)}ms\r`);
+        console.log(`  Iteration ${i + 1}/${iterations}: ${time.toFixed(2)}ms\r`);
+        // Force garbage collection if available (run with --expose-gc)
+        if (global.gc) {
+            global.gc();
+        }
     }
     
     console.log(''); // New line after iterations
@@ -97,13 +101,14 @@ function printResults(results: BenchmarkResult[]) {
     console.log('BENCHMARK RESULTS');
     console.log('='.repeat(100));
     console.log();
-    console.log('| Size     | Assemblies | Products/Asm | Total Products | Avg Time (ms) | Min Time (ms) | Max Time (ms) | Ops/sec |');
-    console.log('|----------|------------|--------------|----------------|---------------|---------------|---------------|---------|');
+    console.log('| Size                         | Assemblies | Products/Asm | Total Products | Avg Time (ms) | Min Time (ms) | Max Time (ms) | Ops/sec |');
+    console.log('|------------------------------|------------|--------------|----------------|---------------|---------------|---------------|---------|');
     
     for (const result of results) {
         const opsPerSec = (1000 / result.avgTime).toFixed(2);
         console.log(
-            `| ${result.size.padEnd(8)} | ` +
+            `| ${result.size.padEnd(
+                28)} | ` +
             `${result.assemblies.toString().padStart(10)} | ` +
             `${result.products.toString().padStart(12)} | ` +
             `${result.totalProducts.toString().padStart(14)} | ` +
@@ -134,11 +139,11 @@ async function main() {
     const baseProject = JSON.parse(baseProjectData);
     
     const sizes = [
-        { assemblies: 1, products: 1, name: 'original', iterations: 50 },
-        { assemblies: 10, products: 10, name: 'small', iterations: 30 },
+        { assemblies: 1, products: 1, name: 'original', iterations: 10 },
         { assemblies: 50, products: 20, name: 'medium', iterations: 10 },
-        // { assemblies: 100, products: 50, name: 'large', iterations: 5 },
-        // { assemblies: 200, products: 100, name: 'xlarge', iterations: 3 },
+        { assemblies: 1000, products: 1, name: 'medium-more-assemblies', iterations: 10 },
+        { assemblies: 250, products: 20, name: 'large', iterations: 5 },
+        { assemblies: 5000, products: 1, name: 'large-more-assemblies', iterations: 5 },
     ];
     
     const results: BenchmarkResult[] = [];
