@@ -22,7 +22,9 @@ test = false
 bench = false
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(wasm_bindgen_unstable_test_coverage)'] }
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(wasm_bindgen_unstable_test_coverage)',
+] }
 
 [features]
 default = []
@@ -36,7 +38,6 @@ pybindings = [
     "lcax_calculation/pybindings",
 ]
 jsbindings = [
-    "wee_alloc",
     "wasm-bindgen",
     "serde-wasm-bindgen",
     "console_error_panic_hook",
@@ -60,10 +61,12 @@ lcax_calculation = { path = "../calculation", version = ">=3.0.0-beta.1" }
 lcax_validation = { path = "../validation", version = ">=3.0.0-beta.1" }
 
 # Python Bindings
-pyo3 = { version = "0.24", features = ["abi3-py310", "chrono"], optional = true }
+pyo3 = { version = "0.24", features = [
+    "abi3-py310",
+    "chrono",
+], optional = true }
 
 # JS Bindings
-wee_alloc = { version = "0.4.5", optional = true }
 wasm-bindgen = { version = "0.2.100", optional = true }
 serde-wasm-bindgen = { version = "0.6.5", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }

@@ -4,20 +4,13 @@ description = "LCAx is an open, machine and human-readable data format for excha
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
-authors = [
-    { name = "Christian Kongsgaard", email = "christian@kongsgaard.eu" },
-]
+authors = [{ name = "Christian Kongsgaard", email = "christian@kongsgaard.eu" }]
 dynamic = ["version"]
 
-dependencies = [
-    "cffi",
-]
+dependencies = ["cffi"]
 
 [project.optional-dependencies]
-tests = [
-    'pytest',
-    "pytest-datafixtures"
-]
+tests = ['pytest', "pytest-datafixtures"]
 
 [project.urls]
 homepage = "https://lcax.kongsgaard.eu"
@@ -37,3 +30,6 @@ manifest-path = "modules/lcax/Cargo.toml"
 [tool.pytest.ini_options]
 pythonpath = "packages/python/src"
 testpaths = ["packages/python/tests/"]
+
+[dependency-groups]
+dev = ["maturin>=1.11.5", 'pytest', "pytest-datafixtures"]
